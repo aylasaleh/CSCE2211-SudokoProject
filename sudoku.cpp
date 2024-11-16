@@ -32,7 +32,7 @@ bool sudoku::solve(int index1, int index2){
     //if the element is empty and we can change it
     else{
         for(int i = 1; i <=9; i++){//try all possible solutions one through nine
-            solArr[index1][index2] = i;
+            arr[index1][index2] = i;
             //if the element does not violate existing elements
             if(checkRow(index1, i) && checkColumn(index2, i) && checkBox((index1 - index1%3), (index2-index2%3),i)){
                 if(solveNext(index1, index2)){//if there is an actual solution which results then we are done
@@ -41,7 +41,7 @@ bool sudoku::solve(int index1, int index2){
             }
         }
         //we exited the loop and thus no element works, so reset the element in question and return false (no solution reached)
-        solArr[index1][index2] = 0;
+        arr[index1][index2] = 0;
         return false;
     }
 }

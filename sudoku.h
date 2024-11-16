@@ -11,17 +11,22 @@ class sudoku {
         element (int n, bool flag): num(n), isFixed(flag){}
     }; 
     element arr[9][9]; //2D array of the Sudoku grid
+    element solArr[9][9]; //2D array which must be initialized to arr and will contain the solution
 
     public:
 
     sudoku(); 
     ~sudoku(); 
     void create (); 
-    void solve(); 
+    bool solve(); 
     void print (); 
-    bool checkRow(); 
-    bool checkCol(); 
-    bool checkBox(); 
+
+    private:
+    bool solve(int index1, int index2);
+    bool solveNext(int index1, int index2);
+    bool checkRow(int indexRow, int valCheck); 
+    bool checkCol(int indexCol, int valCheck); 
+    bool checkBox(int indexBoxStart1, int indexBoxStart2, int valCheck); 
 
 }; 
 

@@ -10,7 +10,9 @@ class sudoku {
         bool isFixed; //a flag to signify if number is set and permenant in the sudoku array
         element (int n, bool flag): num(n), isFixed(flag){}
     }; 
-    element arr[9][9]; //2D array of the Sudoku grid initialized to zeros
+
+    int SIZE;
+    element **arr; //2D array of the Sudoku grid initialized to zeros
 
     public:
 

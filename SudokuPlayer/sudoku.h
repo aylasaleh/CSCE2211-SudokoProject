@@ -1,6 +1,6 @@
 #ifndef SUDOKU_H
 #define SUDOKU_H
-#include <fstream>
+#include <QTextStream>
 
 class sudoku {
 private:
@@ -27,6 +27,9 @@ public:
 
     void print ();
 
+    const element (&getGrid() const)[SIZE][SIZE];
+
+
 private:
     bool solve(int index1, int index2);
     bool solveNext(int index1, int index2);
@@ -35,6 +38,7 @@ private:
     bool checkCol(int indexRow, int indexCol, int valCheck);
     bool checkBox(int index1, int index2, int indexBoxStart1, int indexBoxStart2, int valCheck);
 
-    void generateSudoku(std::ifstream &file, char ver);
+    void generateSudoku(QTextStream &file, char ver);
+
 };
 #endif

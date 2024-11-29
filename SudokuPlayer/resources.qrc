@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/games">
+        <file>EasySudokus.txt</file>
+        <file>HardSudokus.txt</file>
+        <file>MediumSudokus.txt</file>
+    </qresource>
+</RCC>

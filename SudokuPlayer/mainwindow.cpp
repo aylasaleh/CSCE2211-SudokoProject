@@ -90,6 +90,7 @@ void MainWindow::onLoadPuzzle()
     //set up the table dimensions again, just in case
     ui->sudokuTable->setRowCount(9);
     ui->sudokuTable->setColumnCount(9);
+    ui -> sudokuTable->setStyleSheet("background-color: white;");
 
     //get the Sudoku grid
     const auto& grid = puzzle.getGrid();
@@ -137,11 +138,11 @@ void MainWindow::onLoadPuzzle()
 
     //copy solved sudoko
     const auto& sudokosolved = puzzle.getGrid();
+    puzzle.print();
 
     //copy answers of sudoko into an array
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-
             solvedsudoko[i][j] = sudokosolved[i][j].num;
         }
 
@@ -150,8 +151,6 @@ void MainWindow::onLoadPuzzle()
 
 void MainWindow::onCheckSolution()
 {
-    //qDebug() << " number of iteration";
-    //qDebug() << "Saif will implement check the solution. For now lets pretend it is checking..." ;
 
     int useranswer[9][9];
 
@@ -175,8 +174,8 @@ void MainWindow::onCheckSolution()
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
 
-            // check if answers are the same
-            if (useranswer[i][j] != solvedsudoko[i][j]){
+            // check if answers are not the same
+            if (useranswer[i][j] != 0 && useranswer[i][j] != solvedsudoko[i][j]){
                 qDebug() << "correct answer is" << solvedsudoko[i][j];
                 valid = false;
                 break;

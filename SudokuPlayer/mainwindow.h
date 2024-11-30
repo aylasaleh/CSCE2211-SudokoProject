@@ -22,11 +22,14 @@ private slots:
     void setDigit(int digit);
     void onCellClicked(int row, int column);
 
+    void on_checkButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTableWidget *sudokuTable;
     sudoku puzzle;
     void updateTable();
+    int solvedsudoko[9][9];
     void showMessage(const QString &message);
     int currentDigit;
 };

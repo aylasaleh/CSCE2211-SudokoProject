@@ -4,6 +4,7 @@
 #include <QTableWidgetItem>
 #include <QDebug>
 #include <QTableWidget>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::onLoadPuzzle);
     connect(ui->checkButton, &QPushButton::clicked, this, &MainWindow::onCheckSolution);
+
 }
 
 MainWindow::~MainWindow()
@@ -82,6 +84,8 @@ void MainWindow::onLoadPuzzle()
     //get the Sudoku grid
     const auto& grid = puzzle.getGrid();
 
+
+
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
             qDebug() << "Grid[" << i << "][" << j << "] = " << grid[i][j].num;
@@ -108,9 +112,69 @@ void MainWindow::onLoadPuzzle()
     }
 
     qDebug() << "Loaded a new Sudoku puzzle.";
+
+    puzzle.solve();
+
+    const auto& sudokosolved = puzzle.getGrid();
+
+    //copy answers of sudoko into array
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+
+            solvedsudoko[i][j] = sudokosolved[i][j].num;
+        }
+
+    }
 }
 
 void MainWindow::onCheckSolution()
 {
-    qDebug() << "Saif will implement check the solution. For now lets pretend it is checking..." ;
+    //qDebug() << "Saif will implement check the solution. For now lets pretend it is checking..." ;
 }
+
+void MainWindow::on_checkButton_clicked()
+{
+    int useranswer[9][9];
+
+    // extract the user's answers from the grid along with original answers
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+
+            QTableWidgetItem* item = ui->sudokuTable->item(i, j);
+            if (item && !item->text().isEmpty()) {
+                //convert cell value to integer
+                useranswer[i][j] = item->text().toInt();
+            } else {
+                // treat empty cells as 0s
+                useranswer[i][j] = 0;
+
+        }
+    }
+    }
+    bool valid = true;
+
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+
+                // check if answers are the same
+                    if (useranswer[i][j] != solvedsudoko[i][j]){
+                        qDebug() << "correct answer is" << solvedsudoko[i][j];
+                        valid = false;
+                        break;
+                    }
+
+                }
+            if (valid == false){
+                break;
+            }
+         }
+
+
+        if (valid == false){
+         QMessageBox errorMessage(this);
+            errorMessage.setText("Wrong Solution");
+            errorMessage.exec();
+    }
+
+}
+

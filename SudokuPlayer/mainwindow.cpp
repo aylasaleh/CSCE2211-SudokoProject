@@ -34,8 +34,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sudokuTable, &QTableWidget::cellClicked, this, &MainWindow::onCellClicked);
 
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::onLoadPuzzle);
+    connect(ui->autoCheckCheckBox, &QCheckBox::toggled, this, &MainWindow::onAutoCheckToggled);
 
-    this->setFixedSize(485, 604);
+    this->setFixedSize(486, 632);
 
 }
 
@@ -54,6 +55,11 @@ void MainWindow::setDigit(int digit)
 {
     currentDigit = digit;
     //qDebug() << "Selected digit:" << currentDigit;
+}
+
+void MainWindow::onAutoCheckToggled(bool checked)
+{
+    autoCheckEnabled = checked;
 }
 
 void MainWindow::on_eraseB_clicked()
@@ -78,6 +84,9 @@ void MainWindow::onCellClicked(int row, int col)
             font.setBold(false); //non-fixed cells not bold unless error
             item->setFont(font);
             item->setForeground(QBrush(QColor(Qt::black)));
+            if (autoCheckEnabled) {
+                onCheckSolution();  //automatically check after each entry
+            }
         } else
             item ->setText("");//erasing
     } else {
@@ -157,7 +166,6 @@ void MainWindow::onLoadPuzzle()
 
 void MainWindow::onCheckSolution()
 {
-
     bool isComplete = true;
     bool valid = true;
 
@@ -199,13 +207,18 @@ void MainWindow::onCheckSolution()
         }
     }
 
-    if (isComplete && !valid) {
-        QMessageBox errorMessage(this);
-        errorMessage.setText("Wrong Solution");
-        errorMessage.exec();
+    if (autoCheckEnabled) {
+        return;
+    } else {
+        // If auto-check is disabled, check for both completion and validity
+        if (valid && isComplete) {
+            QMessageBox::information(this, "Success", "Congratulations, you solved the Sudoku!");
+        } else if (!isComplete) {
+            QMessageBox::warning(this, "Incomplete", "The puzzle is not complete.");
+        } else {
+            QMessageBox::warning(this, "Invalid", "The solution is invalid.");
+        }
     }
-
-
 }
 
 void MainWindow::on_checkButton_clicked()

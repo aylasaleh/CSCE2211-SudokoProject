@@ -31,6 +31,7 @@ private slots:
     void on_loadButton_clicked();
 
     void on_eraseB_clicked();
+    void onAutoCheckToggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
@@ -40,6 +41,7 @@ private:
     int solvedsudoko[9][9];
     void showMessage(const QString &message);
     int currentDigit;
+    bool autoCheckEnabled;
 };
 
 #endif // MAINWINDOW_H

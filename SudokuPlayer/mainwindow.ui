@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
-    <height>433</height>
+    <width>400</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <!-- Digit Buttons Layout -->
     <item>
      <layout class="QHBoxLayout" name="digitButtonLayout">
       <item>
@@ -82,13 +83,17 @@
       </item>
      </layout>
     </item>
+
+    <!-- Sudoku Table -->
     <item>
      <widget class="QTableWidget" name="sudokuTable">
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::NoSelection</enum>
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>400</width>
+        <height>400</height>
+       </rect>
       </property>
       <property name="rowCount">
        <number>9</number>
@@ -96,45 +101,28 @@
       <property name="columnCount">
        <number>9</number>
       </property>
-      <attribute name="horizontalHeaderVisible">
+      <property name="horizontalHeaderVisible">
        <bool>false</bool>
-      </attribute>
-      <attribute name="verticalHeaderVisible">
+      </property>
+      <property name="verticalHeaderVisible">
        <bool>false</bool>
-      </attribute>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <row/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
-      <column/>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::NoSelection</enum>
+      </property>
      </widget>
     </item>
+
+    <!-- Button Layout -->
     <item>
      <layout class="QHBoxLayout" name="buttonLayout">
       <item>
        <widget class="QPushButton" name="loadButton">
         <property name="text">
-         <string>New Game</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="eraseB">
-        <property name="text">
-         <string>Erase</string>
+         <string>Load Puzzle</string>
         </property>
        </widget>
       </item>
@@ -147,18 +135,18 @@
       </item>
      </layout>
     </item>
+
+    <!-- Auto Check Box Layout -->
+    <item>
+     <widget class="QCheckBox" name="autoCheckCheckBox">
+      <property name="text">
+       <string>Enable Auto Check</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>482</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QMenuBar" name="menubar"/>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>

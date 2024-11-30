@@ -74,8 +74,11 @@ void MainWindow::onCellClicked(int row, int col)
     if (item->flags() & Qt::ItemIsEditable) {
         if (currentDigit != 0) {
             item->setText(QString::number(currentDigit));  //set the digit
-            item->setForeground(QBrush(QColor(QColorConstants::Black)));  // set font color to black to show editable position
-        }else
+            QFont font = item->font();
+            font.setBold(false); //non-fixed cells not bold unless error
+            item->setFont(font);
+            item->setForeground(QBrush(QColor(Qt::black)));
+        } else
             item ->setText("");//erasing
     } else {
         qDebug() << "Cannot edit fixed cells.";
@@ -105,22 +108,25 @@ void MainWindow::onLoadPuzzle()
 
             QFont font = item->font();
             font.setPointSize(14);  // set font size to 14
+            if(grid[i][j].isFixed){
+                font.setBold(true);  //bold fixed cells
+                item->setForeground(QBrush(QColorConstants::Svg::purple));
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make non-editable
+            } else {
+                item->setFlags(item->flags() | Qt::ItemIsEditable); //allow editing
+            }
+
             item->setFont(font);
             item->setTextAlignment(Qt::AlignCenter);  //center text
 
-            if (grid[i][j].isFixed) {
-                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make fixed numbers non-editable
-            } else {
-                item->setFlags(item->flags() | Qt::ItemIsEditable); //allow editing of empty cells
-            }
             ui->sudokuTable->setItem(i, j, item);
+
             if ((i / 3) % 2 == 0 && (j / 3) % 2 == 0) {
-                item->setBackground(QBrush(QColor(230, 230, 250)));}    //sets the boxes colors
+                item->setBackground(QBrush(QColor(230, 230, 250)));
+            }    //sets the boxes colors
             item->setForeground(QBrush(QColorConstants::Svg::purple));  // set font color of non-editable
         }
     }
-
-    ui->sudokuTable->setStyleSheet("QTableWidget::item:nth-child(1) { gridline-color: black;}");//trying to implement box gridlines but failed
 
     ui->sudokuTable->horizontalHeader()->setVisible(false);
     ui->sudokuTable->verticalHeader()->setVisible(false);
@@ -152,46 +158,53 @@ void MainWindow::onLoadPuzzle()
 void MainWindow::onCheckSolution()
 {
 
-    int useranswer[9][9];
-
-    // extract the user's answers from the grid along with original answers
-    for (int i = 0; i < 9; ++i) {
-        for (int j = 0; j < 9; ++j) {
-
-            QTableWidgetItem* item = ui->sudokuTable->item(i, j);
-            if (item && !item->text().isEmpty()) {
-                //convert cell value to integer
-                useranswer[i][j] = item->text().toInt();
-            } else {
-                // treat empty cells as 0s
-                useranswer[i][j] = 0;
-
-            }
-        }
-    }
+    bool isComplete = true;
     bool valid = true;
 
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
+            QTableWidgetItem* item = ui->sudokuTable->item(i, j);
+            if (!item) continue;
 
-            // check if answers are not the same
-            if (useranswer[i][j] != 0 && useranswer[i][j] != solvedsudoko[i][j]){
-                qDebug() << "correct answer is" << solvedsudoko[i][j];
-                valid = false;
-                break;
+            int userValue = item->text().isEmpty() ? 0 : item->text().toInt();
+            bool isFixed = puzzle.getGrid()[i][j].isFixed;
+
+            if (isFixed) {
+                //reset fixed cells to purple bold
+                QFont font = item->font();
+                font.setBold(true);
+                item->setFont(font);
+                item->setForeground(QBrush(QColorConstants::Svg::purple));
+            } else {
+                //editable cells
+                if (userValue != 0 && userValue != solvedsudoko[i][j]) {
+                    //incorrect value
+                    valid = false;
+                    QFont font = item->font();
+                    font.setBold(true);
+                    item->setFont(font);
+                    item->setForeground(QBrush(QColor(Qt::red)));
+                } else {
+                    //correct or empty value
+                    QFont font = item->font();
+                    font.setBold(false);
+                    item->setFont(font);
+                    item->setForeground(userValue == 0 ? QBrush(QColor(Qt::black)) : QBrush(QColorConstants::Svg::purple));
+                }
             }
 
-        }
-        if (valid == false){
-            break;
+            if (userValue == 0) {
+                isComplete = false;  //puzzle is incomplete
+            }
         }
     }
 
-    if (valid == false){
+    if (isComplete && !valid) {
         QMessageBox errorMessage(this);
         errorMessage.setText("Wrong Solution");
         errorMessage.exec();
     }
+
 
 }
 

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "welcome.h"
 #include "sudoku.h"
 #include <QTableWidgetItem>
 #include <QDebug>
@@ -16,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->sudokuTable->setRowCount(9);
     ui->sudokuTable->setColumnCount(9);
 
-    onLoadPuzzle();
 
 
     //connect digit buttons to slot
@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::onLoadPuzzle);
     connect(ui->checkButton, &QPushButton::clicked, this, &MainWindow::onCheckSolution);
 
+    this->setFixedSize(485, 604);
+
 }
 
 MainWindow::~MainWindow()
@@ -43,10 +45,21 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::getPuzzle (sudoku p)
+{
+    puzzle = p;
+    onLoadPuzzle();
+}
+
 void MainWindow::setDigit(int digit)
 {
     currentDigit = digit;
-    qDebug() << "Selected digit:" << currentDigit;
+    //qDebug() << "Selected digit:" << currentDigit;
+}
+
+void MainWindow::on_eraseB_clicked()
+{
+    currentDigit = 0;
 }
 
 void MainWindow::onCellClicked(int row, int col)
@@ -62,7 +75,9 @@ void MainWindow::onCellClicked(int row, int col)
     if (item->flags() & Qt::ItemIsEditable) {
         if (currentDigit != 0) {
             item->setText(QString::number(currentDigit));  //set the digit
-        }
+            item->setForeground(QBrush(QColor(QColorConstants::Black)));  // set font color to black to show editable position
+        }else
+            item ->setText("");//erasing
     } else {
         qDebug() << "Cannot edit fixed cells.";
     }
@@ -77,38 +92,43 @@ void MainWindow::onLoadPuzzle()
     ui->sudokuTable->setRowCount(9);
     ui->sudokuTable->setColumnCount(9);
 
-    //initialize a new Sudoku puzzle
-    sudoku puzzle;
-    puzzle.create(sudoku::Difficulty::Easy, 'A');
-
     //get the Sudoku grid
     const auto& grid = puzzle.getGrid();
 
-
-
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-            qDebug() << "Grid[" << i << "][" << j << "] = " << grid[i][j].num;
+            //qDebug() << "Grid[" << i << "][" << j << "] = " << grid[i][j].num;
 
             //populate table
             int value = grid[i][j].num;
             QTableWidgetItem* item = new QTableWidgetItem(value == 0 ? "" : QString::number(value));
+
+            QFont font = item->font();
+            font.setPointSize(14);  // set font size to 14
+            item->setFont(font);
+            item->setTextAlignment(Qt::AlignCenter);  //center text
+
             if (grid[i][j].isFixed) {
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make fixed numbers non-editable
             } else {
                 item->setFlags(item->flags() | Qt::ItemIsEditable); //allow editing of empty cells
             }
             ui->sudokuTable->setItem(i, j, item);
+            if ((i / 3) % 2 == 0 && (j / 3) % 2 == 0) {
+                item->setBackground(QBrush(QColor(230, 230, 250)));}    //sets the boxes colors
+            item->setForeground(QBrush(QColorConstants::Svg::purple));  // set font color of non-editable
         }
     }
+
+    ui->sudokuTable->setStyleSheet("QTableWidget::item:nth-child(1) { gridline-color: black;}");//trying to implement box gridlines but failed
 
     ui->sudokuTable->horizontalHeader()->setVisible(false);
     ui->sudokuTable->verticalHeader()->setVisible(false);
     ui->sudokuTable->setShowGrid(true);
 
     for (int i = 0; i < 9; ++i) {
-        ui->sudokuTable->setColumnWidth(i, 40);
-        ui->sudokuTable->setRowHeight(i, 40);
+        ui->sudokuTable->setColumnWidth(i, 51);
+        ui->sudokuTable->setRowHeight(i, 51);
     }
 
     qDebug() << "Loaded a new Sudoku puzzle.";
@@ -177,4 +197,14 @@ void MainWindow::on_checkButton_clicked()
     }
 
 }
+
+
+void MainWindow::on_loadButton_clicked()
+{
+    emit backToWelcome(); // emit signal to the connect in the welcome pages
+    this->close();        // close mainwindow
+}
+
+
+
 

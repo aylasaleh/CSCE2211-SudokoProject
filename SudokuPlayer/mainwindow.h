@@ -15,6 +15,10 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void getPuzzle (sudoku p);
+
+signals:
+    void backToWelcome(); // Signal to notify return to the Welcome window
 
 private slots:
     void onLoadPuzzle();
@@ -23,6 +27,10 @@ private slots:
     void onCellClicked(int row, int column);
 
     void on_checkButton_clicked();
+
+    void on_loadButton_clicked();
+
+    void on_eraseB_clicked();
 
 private:
     Ui::MainWindow *ui;

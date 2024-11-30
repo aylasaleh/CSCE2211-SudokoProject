@@ -52,7 +52,7 @@ void sudoku::generateSudoku(QTextStream &file, char ver) {
 
     //skip to the required version
     while (ver != ch.toLatin1() && !file.atEnd()) {
-        for (int i = 0; i < 9; i++) { //read 9 lines to skip a version
+        for (int i = 0; i < 10; i++) { //read 10 lines to skip a version (9 + line for the Letter)
             line = file.readLine();
             qDebug() << "Raw line read:" << line;
             line = line.trimmed(); //trim whitespace

@@ -11,14 +11,17 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    sudoku.cpp
+    sudoku.cpp \
+    welcome.cpp
 
 HEADERS += \
     mainwindow.h \
-    sudoku.h
+    sudoku.h \
+    welcome.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    welcome.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

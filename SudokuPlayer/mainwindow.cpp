@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sudokuTable, &QTableWidget::cellClicked, this, &MainWindow::onCellClicked);
 
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::onLoadPuzzle);
-    connect(ui->checkButton, &QPushButton::clicked, this, &MainWindow::onCheckSolution);
 
     this->setFixedSize(485, 604);
 
@@ -133,11 +132,13 @@ void MainWindow::onLoadPuzzle()
 
     qDebug() << "Loaded a new Sudoku puzzle.";
 
+    // solve the sudoko
     puzzle.solve();
 
+    //copy solved sudoko
     const auto& sudokosolved = puzzle.getGrid();
 
-    //copy answers of sudoko into array
+    //copy answers of sudoko into an array
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
 
@@ -149,11 +150,9 @@ void MainWindow::onLoadPuzzle()
 
 void MainWindow::onCheckSolution()
 {
+    //qDebug() << " number of iteration";
     //qDebug() << "Saif will implement check the solution. For now lets pretend it is checking..." ;
-}
 
-void MainWindow::on_checkButton_clicked()
-{
     int useranswer[9][9];
 
     // extract the user's answers from the grid along with original answers
@@ -168,34 +167,38 @@ void MainWindow::on_checkButton_clicked()
                 // treat empty cells as 0s
                 useranswer[i][j] = 0;
 
+            }
         }
-    }
     }
     bool valid = true;
 
-        for (int i = 0; i < 9; ++i) {
-            for (int j = 0; j < 9; ++j) {
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
 
-                // check if answers are the same
-                    if (useranswer[i][j] != solvedsudoko[i][j]){
-                        qDebug() << "correct answer is" << solvedsudoko[i][j];
-                        valid = false;
-                        break;
-                    }
-
-                }
-            if (valid == false){
+            // check if answers are the same
+            if (useranswer[i][j] != solvedsudoko[i][j]){
+                qDebug() << "correct answer is" << solvedsudoko[i][j];
+                valid = false;
                 break;
             }
-         }
 
-
+        }
         if (valid == false){
-         QMessageBox errorMessage(this);
-            errorMessage.setText("Wrong Solution");
-            errorMessage.exec();
+            break;
+        }
     }
 
+    if (valid == false){
+        QMessageBox errorMessage(this);
+        errorMessage.setText("Wrong Solution");
+        errorMessage.exec();
+    }
+
+}
+
+void MainWindow::on_checkButton_clicked()
+{
+    onCheckSolution();
 }
 
 

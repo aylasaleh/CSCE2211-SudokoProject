@@ -234,6 +234,7 @@ Makefile: ../../SudokuPlayer.pro G:/qt/6.7.0/mingw_64/mkspecs/win32-g++/qmake.co
 		G:/qt/6.7.0/mingw_64/mkspecs/features/qt_config.prf \
 		G:/qt/6.7.0/mingw_64/mkspecs/win32-g++/qmake.conf \
 		G:/qt/6.7.0/mingw_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		G:/qt/6.7.0/mingw_64/mkspecs/features/exclusive_builds.prf \
 		G:/qt/6.7.0/mingw_64/mkspecs/features/toolchain.prf \
 		G:/qt/6.7.0/mingw_64/mkspecs/features/default_pre.prf \
@@ -263,7 +264,6 @@ Makefile: ../../SudokuPlayer.pro G:/qt/6.7.0/mingw_64/mkspecs/win32-g++/qmake.co
 		G:/qt/6.7.0/mingw_64/lib/Qt6Gui.prl \
 		G:/qt/6.7.0/mingw_64/lib/Qt6Core.prl \
 		G:/qt/6.7.0/mingw_64/lib/Qt6EntryPoint.prl \
-		.qmake.stash \
 		G:/qt/6.7.0/mingw_64/mkspecs/features/build_pass.prf \
 		../../resources.qrc
 	$(QMAKE) -o Makefile ..\..\SudokuPlayer.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
@@ -431,6 +431,7 @@ G:/qt/6.7.0/mingw_64/mkspecs/features/qt_functions.prf:
 G:/qt/6.7.0/mingw_64/mkspecs/features/qt_config.prf:
 G:/qt/6.7.0/mingw_64/mkspecs/win32-g++/qmake.conf:
 G:/qt/6.7.0/mingw_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 G:/qt/6.7.0/mingw_64/mkspecs/features/exclusive_builds.prf:
 G:/qt/6.7.0/mingw_64/mkspecs/features/toolchain.prf:
 G:/qt/6.7.0/mingw_64/mkspecs/features/default_pre.prf:
@@ -460,7 +461,6 @@ G:/qt/6.7.0/mingw_64/lib/Qt6Widgets.prl:
 G:/qt/6.7.0/mingw_64/lib/Qt6Gui.prl:
 G:/qt/6.7.0/mingw_64/lib/Qt6Core.prl:
 G:/qt/6.7.0/mingw_64/lib/Qt6EntryPoint.prl:
-.qmake.stash:
 G:/qt/6.7.0/mingw_64/mkspecs/features/build_pass.prf:
 ../../resources.qrc:
 qmake: FORCE

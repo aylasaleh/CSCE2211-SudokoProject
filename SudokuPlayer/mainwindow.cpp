@@ -207,17 +207,14 @@ void MainWindow::onCheckSolution()
         }
     }
 
-    if (autoCheckEnabled) {
-        return;
+    // If auto-check is disabled, check for both completion and validity
+    if (valid && isComplete) {
+        QMessageBox::information(this, "Success", "Congratulations, you solved the Sudoku!");
+    } else if (!isComplete) {
+        if(autoCheckEnabled) return;
+        QMessageBox::warning(this, "Incomplete", "The puzzle is not complete.");
     } else {
-        // If auto-check is disabled, check for both completion and validity
-        if (valid && isComplete) {
-            QMessageBox::information(this, "Success", "Congratulations, you solved the Sudoku!");
-        } else if (!isComplete) {
-            QMessageBox::warning(this, "Incomplete", "The puzzle is not complete.");
-        } else {
-            QMessageBox::warning(this, "Invalid", "The solution is invalid.");
-        }
+        QMessageBox::warning(this, "Invalid", "The solution is invalid.");
     }
 }
 

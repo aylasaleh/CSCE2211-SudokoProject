@@ -10,6 +10,11 @@ Welcome::Welcome(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("Welcome");
+
+    // game music
+    gameMusic = new QSoundEffect(this);
+    gameMusic->setSource(QUrl("qrc:/Music Choices/Gameplay Theme - Microsoft Sudoku.wav"));
+    PlayMusic();
 }
 
 Welcome::~Welcome()
@@ -21,6 +26,19 @@ char Welcome::randomLetterGenerator()
 {
     int n = QRandomGenerator::global()->bounded(4);
     return 'A' + n;
+}
+
+void Welcome::PlayMusic()
+{
+    qDebug() << "playing music";
+    gameMusic->setLoopCount(50);
+    gameMusic->play();
+}
+
+void Welcome::MuteMusic()
+{
+    qDebug() << "Stopping music";
+    gameMusic->stop();
 }
 
 void Welcome::on_easyB_clicked()
@@ -41,6 +59,11 @@ void Welcome::on_easyB_clicked()
 
     //inorder to avoid creating endless windows when starting new games we will maintain 1 welcome window and closing main windows
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
+
+    //connect signals for playing music
+    connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
+    connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
+
     m->show();
 }
 
@@ -61,6 +84,11 @@ void Welcome::on_medB_clicked()
     //pass the puzzle to the main window
     m->getPuzzle(puzzle);
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
+
+    //connect signals for playing music
+    connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
+    connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
+
     m->show();
 }
 
@@ -81,6 +109,23 @@ void Welcome::on_hardB_clicked()
     //pass the puzzle to the main window
     m->getPuzzle(puzzle);
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
+
+    //connect signals for playing music
+    connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
+    connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
+
+
     m->show();
+}
+
+
+void Welcome::on_MuteMusic_stateChanged(int state)
+{
+    if (state == Qt::Checked){
+        MuteMusic();
+    }
+    else if (state == Qt::Unchecked){
+        PlayMusic();
+    }
 }
 

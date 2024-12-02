@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "mainwindow.h"
+#include "QSoundEffect"
 
 namespace Ui {
 class Welcome;
@@ -23,9 +24,14 @@ private slots:
 
     void on_hardB_clicked();
 
+    void on_MuteMusic_stateChanged(int arg1);
+
 private:
     Ui::Welcome *ui;
     char randomLetterGenerator();
+    QSoundEffect* gameMusic;
+    void PlayMusic();
+    void MuteMusic();
 };
 
 #endif // WELCOME_H

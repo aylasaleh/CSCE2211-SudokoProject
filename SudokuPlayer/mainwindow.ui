@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
+    <width>788</width>
     <height>450</height>
    </rect>
   </property>
@@ -154,6 +154,13 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QCheckBox" name="MuteMusic">
+      <property name="text">
+       <string>Mute Music</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -161,8 +168,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>482</width>
-     <height>42</height>
+     <width>788</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

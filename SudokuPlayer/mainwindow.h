@@ -19,6 +19,8 @@ public:
 
 signals:
     void backToWelcome(); // Signal to notify return to the Welcome window
+    void MuteMusic(); // Signal to mute music
+    void PlayMusic();
 
 private slots:
     void onLoadPuzzle();
@@ -30,6 +32,8 @@ private slots:
     void onAutoCheckToggled(bool checked);
     void on_eraseButton_clicked();
 
+    void on_MuteMusic_stateChanged(int state);
+
 private:
     Ui::MainWindow *ui;
     QTableWidget *sudokuTable;
@@ -39,6 +43,7 @@ private:
     void showMessage(const QString &message);
     int currentDigit;
     bool autoCheckEnabled;
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QTableWidget>
 #include <QMessageBox>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -232,3 +233,23 @@ void MainWindow::on_eraseButton_clicked()
     // QTC_TEMP
 }
 
+
+void MainWindow::on_MuteMusic_stateChanged(int state)
+{
+    if (state == Qt::Checked){
+        emit MuteMusic();
+    }
+    else if (state == Qt::Unchecked){
+        emit PlayMusic();
+    }
+}
+
+// override close application function to stop the sound when exiting application
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    emit MuteMusic();
+    qDebug() << "application is closing now";
+    delete ui;
+
+    event->accept();
+}

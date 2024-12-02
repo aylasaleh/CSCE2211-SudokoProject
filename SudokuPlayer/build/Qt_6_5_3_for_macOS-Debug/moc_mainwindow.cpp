@@ -50,9 +50,9 @@ static constexpr auto qt_meta_stringdata_CLASSMainWindowENDCLASS = QtMocHelpers:
     "column",
     "on_checkButton_clicked",
     "on_loadButton_clicked",
-    "on_eraseB_clicked",
     "onAutoCheckToggled",
-    "checked"
+    "checked",
+    "on_eraseButton_clicked"
 );
 #else  // !QT_MOC_HAS_STRING_DATA
 struct qt_meta_stringdata_CLASSMainWindowENDCLASS_t {
@@ -69,9 +69,9 @@ struct qt_meta_stringdata_CLASSMainWindowENDCLASS_t {
     char stringdata9[7];
     char stringdata10[23];
     char stringdata11[22];
-    char stringdata12[18];
-    char stringdata13[19];
-    char stringdata14[8];
+    char stringdata12[19];
+    char stringdata13[8];
+    char stringdata14[23];
 };
 #define QT_MOC_LITERAL(ofs, len) \
     uint(sizeof(qt_meta_stringdata_CLASSMainWindowENDCLASS_t::offsetsAndSizes) + ofs), len 
@@ -89,9 +89,9 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSMainWindowENDCLASS_t qt_meta_st
         QT_MOC_LITERAL(88, 6),  // "column"
         QT_MOC_LITERAL(95, 22),  // "on_checkButton_clicked"
         QT_MOC_LITERAL(118, 21),  // "on_loadButton_clicked"
-        QT_MOC_LITERAL(140, 17),  // "on_eraseB_clicked"
-        QT_MOC_LITERAL(158, 18),  // "onAutoCheckToggled"
-        QT_MOC_LITERAL(177, 7)   // "checked"
+        QT_MOC_LITERAL(140, 18),  // "onAutoCheckToggled"
+        QT_MOC_LITERAL(159, 7),  // "checked"
+        QT_MOC_LITERAL(167, 22)   // "on_eraseButton_clicked"
     },
     "MainWindow",
     "backToWelcome",
@@ -105,9 +105,9 @@ Q_CONSTINIT static const qt_meta_stringdata_CLASSMainWindowENDCLASS_t qt_meta_st
     "column",
     "on_checkButton_clicked",
     "on_loadButton_clicked",
-    "on_eraseB_clicked",
     "onAutoCheckToggled",
-    "checked"
+    "checked",
+    "on_eraseButton_clicked"
 };
 #undef QT_MOC_LITERAL
 #endif // !QT_MOC_HAS_STRING_DATA
@@ -136,8 +136,8 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSMainWindowENDCLASS[] = {
        7,    2,   74,    2, 0x08,    6 /* Private */,
       10,    0,   79,    2, 0x08,    9 /* Private */,
       11,    0,   80,    2, 0x08,   10 /* Private */,
-      12,    0,   81,    2, 0x08,   11 /* Private */,
-      13,    1,   82,    2, 0x08,   12 /* Private */,
+      12,    1,   81,    2, 0x08,   11 /* Private */,
+      14,    0,   84,    2, 0x08,   13 /* Private */,
 
  // signals: parameters
     QMetaType::Void,
@@ -149,8 +149,8 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSMainWindowENDCLASS[] = {
     QMetaType::Void, QMetaType::Int, QMetaType::Int,    8,    9,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,   13,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool,   14,
 
        0        // eod
 };
@@ -181,11 +181,11 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'on_loadButton_clicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'on_eraseB_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onAutoCheckToggled'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>
+        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
+        // method 'on_eraseButton_clicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
     nullptr
 } };
@@ -203,8 +203,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 4: _t->onCellClicked((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         case 5: _t->on_checkButton_clicked(); break;
         case 6: _t->on_loadButton_clicked(); break;
-        case 7: _t->on_eraseB_clicked(); break;
-        case 8: _t->onAutoCheckToggled((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 7: _t->onAutoCheckToggled((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 8: _t->on_eraseButton_clicked(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {

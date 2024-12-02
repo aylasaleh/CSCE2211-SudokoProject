@@ -42,6 +42,7 @@ public:
     QTableWidget *sudokuTable;
     QHBoxLayout *buttonLayout;
     QPushButton *loadButton;
+    QPushButton *eraseButton;
     QPushButton *checkButton;
     QCheckBox *autoCheckCheckBox;
     QMenuBar *menubar;
@@ -51,7 +52,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(400, 450);
+        MainWindow->resize(482, 450);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -107,15 +108,17 @@ public:
         verticalLayout->addLayout(digitButtonLayout);
 
         sudokuTable = new QTableWidget(centralwidget);
+        if (sudokuTable->columnCount() < 9)
+            sudokuTable->setColumnCount(9);
+        if (sudokuTable->rowCount() < 9)
+            sudokuTable->setRowCount(9);
         sudokuTable->setObjectName("sudokuTable");
-        sudokuTable->setGeometry(QRect(20, 20, 400, 400));
-        sudokuTable->setRowCount(9);
-        sudokuTable->setColumnCount(9);
-
-        sudokuTable->horizontalHeader()->setVisible(false);
-        sudokuTable->verticalHeader()->setVisible(false);
         sudokuTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
         sudokuTable->setSelectionMode(QAbstractItemView::NoSelection);
+        sudokuTable->setRowCount(9);
+        sudokuTable->setColumnCount(9);
+        sudokuTable->horizontalHeader()->setVisible(false);
+        sudokuTable->verticalHeader()->setVisible(false);
 
         verticalLayout->addWidget(sudokuTable);
 
@@ -125,6 +128,11 @@ public:
         loadButton->setObjectName("loadButton");
 
         buttonLayout->addWidget(loadButton);
+
+        eraseButton = new QPushButton(centralwidget);
+        eraseButton->setObjectName("eraseButton");
+
+        buttonLayout->addWidget(eraseButton);
 
         checkButton = new QPushButton(centralwidget);
         checkButton->setObjectName("checkButton");
@@ -142,6 +150,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
+        menubar->setGeometry(QRect(0, 0, 482, 42));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
@@ -165,6 +174,7 @@ public:
         digitButton8->setText(QCoreApplication::translate("MainWindow", "8", nullptr));
         digitButton9->setText(QCoreApplication::translate("MainWindow", "9", nullptr));
         loadButton->setText(QCoreApplication::translate("MainWindow", "Load Puzzle", nullptr));
+        eraseButton->setText(QCoreApplication::translate("MainWindow", "Erase", nullptr));
         checkButton->setText(QCoreApplication::translate("MainWindow", "Check Solution", nullptr));
         autoCheckCheckBox->setText(QCoreApplication::translate("MainWindow", "Enable Auto Check", nullptr));
     } // retranslateUi

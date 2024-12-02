@@ -62,10 +62,6 @@ void MainWindow::onAutoCheckToggled(bool checked)
     autoCheckEnabled = checked;
 }
 
-void MainWindow::on_eraseB_clicked()
-{
-    currentDigit = 0;
-}
 
 void MainWindow::onCellClicked(int row, int col)
 {
@@ -230,6 +226,9 @@ void MainWindow::on_loadButton_clicked()
     this->close();        // close mainwindow
 }
 
-
-
+void MainWindow::on_eraseButton_clicked()
+{
+    currentDigit = 0;
+    // QTC_TEMP
+}
 

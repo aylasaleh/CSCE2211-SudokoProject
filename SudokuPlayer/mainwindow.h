@@ -25,13 +25,10 @@ private slots:
     void onCheckSolution();
     void setDigit(int digit);
     void onCellClicked(int row, int column);
-
     void on_checkButton_clicked();
-
     void on_loadButton_clicked();
-
-    void on_eraseB_clicked();
     void onAutoCheckToggled(bool checked);
+    void on_eraseButton_clicked();
 
 private:
     Ui::MainWindow *ui;

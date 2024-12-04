@@ -247,9 +247,6 @@ void MainWindow::on_MuteMusic_stateChanged(int state)
 // override close application function to stop the sound when exiting application
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    emit MuteMusic();
-    qDebug() << "application is closing now";
-    delete ui;
-
-    event->accept();
+    emit backToWelcome();
+    this->close();
 }

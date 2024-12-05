@@ -17,10 +17,14 @@ Welcome::Welcome(QWidget *parent)
     PlayMusic();
 }
 
-Welcome::~Welcome()
-{
+Welcome::~Welcome() {
+    if (gameMusic) {
+        gameMusic->stop();
+        delete gameMusic;
+    }
     delete ui;
 }
+
 
 char Welcome::randomLetterGenerator()
 {

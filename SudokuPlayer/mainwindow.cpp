@@ -64,73 +64,93 @@ void MainWindow::onAutoCheckToggled(bool checked)
 }
 
 
-void MainWindow::onCellClicked(int row, int col)
-{
-    //check if the current cell is editable (empty)
-    QTableWidgetItem *item = ui->sudokuTable->item(row, col);
-    if (!item) {
-        item = new QTableWidgetItem();
-        ui->sudokuTable->setItem(row, col, item);
+void MainWindow::onCellClicked(int row, int col) {
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            QTableWidgetItem* item = ui->sudokuTable->item(i, j);
+            if (!item) continue;
+
+            // Skip fixed cells to avoid overwriting their background color
+            if (puzzle.getGrid()[i][j].isFixed) {
+                item->setBackground(QBrush(QColor(230, 240, 255)));  // Keep fixed cells' color
+                continue;
+            }
+
+            // Highlight the selected cell's row and column
+            if (i == row || j == col) {
+                item->setBackground(QBrush(QColor(173, 216, 230)));  // Light blue for selection
+            } else {
+                // Restore alternating 3x3 grid colors for editable cells
+                item->setBackground(QBrush(((i / 3) + (j / 3)) % 2 == 0 ? QColor(240, 240, 240) : QColor(255, 255, 255)));
+            }
+        }
     }
 
-    //if the item is not fixed, allow the user to set the digit
-    if (item->flags() & Qt::ItemIsEditable) {
+    QTableWidgetItem* selectedItem = ui->sudokuTable->item(row, col);
+    if (!selectedItem) return;
+
+    // Check if the cell is editable
+    if (selectedItem->flags() & Qt::ItemIsEditable) {
         if (currentDigit != 0) {
-            item->setText(QString::number(currentDigit));  //set the digit
-            QFont font = item->font();
-            font.setBold(false); //non-fixed cells not bold unless error
-            item->setFont(font);
-            item->setForeground(QBrush(QColor(Qt::black)));
+            selectedItem->setText(QString::number(currentDigit));  // Set the digit
             if (autoCheckEnabled) {
-                onCheckSolution();  //automatically check after each entry
+                onCheckSolution();  // Automatically check the solution
             }
-        } else
-            item ->setText("");//erasing
+        } else {
+            selectedItem->setText("");  // Erase the digit
+        }
     } else {
         qDebug() << "Cannot edit fixed cells.";
     }
 }
 
-void MainWindow::onLoadPuzzle()
-{
-    //clear the existing table
+
+
+
+void MainWindow::onLoadPuzzle() {
+    // Clear the existing table
     ui->sudokuTable->clear();
 
-    //set up the table dimensions again, just in case
+    // Set up the table dimensions again, just in case
     ui->sudokuTable->setRowCount(9);
     ui->sudokuTable->setColumnCount(9);
-    ui -> sudokuTable->setStyleSheet("background-color: white;");
+    ui->sudokuTable->setStyleSheet("background-color: white;");
 
-    //get the Sudoku grid
+    // Get the Sudoku grid
     const auto& grid = puzzle.getGrid();
 
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-            //qDebug() << "Grid[" << i << "][" << j << "] = " << grid[i][j].num;
-
-            //populate table
+            // Populate table
             int value = grid[i][j].num;
             QTableWidgetItem* item = new QTableWidgetItem(value == 0 ? "" : QString::number(value));
 
             QFont font = item->font();
-            font.setPointSize(14);  // set font size to 14
-            if(grid[i][j].isFixed){
-                font.setBold(true);  //bold fixed cells
-                item->setForeground(QBrush(QColorConstants::Svg::purple));
-                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make non-editable
+            font.setPointSize(14);  // Set font size to 14
+            if (grid[i][j].isFixed) {
+                // Explicitly style fixed cells
+                font.setBold(true);  // Bold font
+                item->setFont(font);
+                item->setForeground(QBrush(QColor(0, 0, 139)));  // Dark blue text
+                item->setBackground(QBrush(QColor(230, 240, 255)));   // Light beige background
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable);  // Non-editable
             } else {
-                item->setFlags(item->flags() | Qt::ItemIsEditable); //allow editing
+                font.setItalic(false);  // Non-italic for editable cells
+                item->setFont(font);
+                item->setForeground(QBrush(QColor(0, 0, 0)));  // Black text
+                item->setBackground(QBrush(QColor(255, 255, 255)));  // White background
+                item->setFlags(item->flags() | Qt::ItemIsEditable);  // Allow editing
             }
 
-            item->setFont(font);
-            item->setTextAlignment(Qt::AlignCenter);  //center text
-
+            item->setTextAlignment(Qt::AlignCenter);  // Center text
             ui->sudokuTable->setItem(i, j, item);
 
-            if ((i / 3) % 2 == 0 && (j / 3) % 2 == 0) {
-                item->setBackground(QBrush(QColor(230, 230, 250)));
-            }    //sets the boxes colors
-            item->setForeground(QBrush(QColorConstants::Svg::purple));  // set font color of non-editable
+            // Set alternating 3x3 grid colors
+            if (((i / 3) + (j / 3)) % 2 == 0) {
+                if (!grid[i][j].isFixed) {
+                    item->setBackground(QBrush(QColor(240, 240, 240)));  // Light gray for editable cells
+                }
+            }
         }
     }
 
@@ -145,24 +165,25 @@ void MainWindow::onLoadPuzzle()
 
     qDebug() << "Loaded a new Sudoku puzzle.";
 
-    // solve the sudoko
+    // Solve the Sudoku
     puzzle.solve();
 
-    //copy solved sudoko
+    // Copy solved Sudoku
     const auto& sudokosolved = puzzle.getGrid();
     puzzle.print();
 
-    //copy answers of sudoko into an array
+    // Copy answers of Sudoku into an array
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
             solvedsudoko[i][j] = sudokosolved[i][j].num;
         }
-
     }
 }
 
-void MainWindow::onCheckSolution()
-{
+
+
+
+void MainWindow::onCheckSolution() {
     bool isComplete = true;
     bool valid = true;
 
@@ -174,46 +195,66 @@ void MainWindow::onCheckSolution()
             int userValue = item->text().isEmpty() ? 0 : item->text().toInt();
             bool isFixed = puzzle.getGrid()[i][j].isFixed;
 
+            // Fixed cells
             if (isFixed) {
-                //reset fixed cells to purple bold
+                // Ensure fixed cells retain their color and style
                 QFont font = item->font();
                 font.setBold(true);
                 item->setFont(font);
-                item->setForeground(QBrush(QColorConstants::Svg::purple));
+                item->setForeground(QBrush(QColor(0, 0, 139)));  // Dark blue text
+                item->setBackground(QBrush(QColor(230, 240, 255)));  // Light grayish blue background
+                continue;  // Skip further checks for fixed cells
+            }
+
+            // Editable cells
+            if (userValue != 0 && userValue != solvedsudoko[i][j]) {
+                // Incorrect value
+                valid = false;
+                QFont font = item->font();
+                font.setBold(true);
+                item->setFont(font);
+                item->setForeground(QBrush(QColor(255, 0, 0)));  // Red text
+                item->setBackground(QBrush(QColor(255, 192, 192)));  // Light red background
+            } else if (userValue != 0 && userValue == solvedsudoko[i][j]) {
+                // Correct value
+                QFont font = item->font();
+                font.setItalic(true);
+                item->setFont(font);
+                item->setForeground(QBrush(QColor(34, 139, 34)));  // Green text
+                // Ensure proper background for vertical/horizontal highlights
+                if (item->background().color() != QColor(173, 216, 230)) {  // Light blue for selection
+                    item->setBackground(QBrush(QColor(255, 255, 255)));  // Default white
+                }
             } else {
-                //editable cells
-                if (userValue != 0 && userValue != solvedsudoko[i][j]) {
-                    //incorrect value
-                    valid = false;
-                    QFont font = item->font();
-                    font.setBold(true);
-                    item->setFont(font);
-                    item->setForeground(QBrush(QColor(Qt::red)));
-                } else {
-                    //correct or empty value
-                    QFont font = item->font();
-                    font.setBold(false);
-                    item->setFont(font);
-                    item->setForeground(userValue == 0 ? QBrush(QColor(Qt::black)) : QBrush(QColorConstants::Svg::purple));
+                // Empty cell
+                QFont font = item->font();
+                font.setBold(false);
+                font.setItalic(false);
+                item->setFont(font);
+                item->setForeground(QBrush(QColor(0, 0, 0)));  // Black text
+                if (item->background().color() != QColor(173, 216, 230)) {  // Light blue for selection
+                    item->setBackground(QBrush(QColor(255, 255, 255)));  // Default white
                 }
             }
 
             if (userValue == 0) {
-                isComplete = false;  //puzzle is incomplete
+                isComplete = false;  // Puzzle is incomplete
             }
         }
     }
 
-    // If auto-check is disabled, check for both completion and validity
+    // Check for completion and validity
     if (valid && isComplete) {
         QMessageBox::information(this, "Success", "Congratulations, you solved the Sudoku!");
     } else if (!isComplete) {
-        if(autoCheckEnabled) return;
+        if (autoCheckEnabled) return;  // Allow auto-check without showing a message for incomplete puzzles
         QMessageBox::warning(this, "Incomplete", "The puzzle is not complete.");
     } else {
         QMessageBox::warning(this, "Invalid", "The solution is invalid.");
     }
 }
+
+
 
 void MainWindow::on_checkButton_clicked()
 {

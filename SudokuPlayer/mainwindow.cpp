@@ -9,10 +9,26 @@
 #include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow), currentDigit(0) //initialize current digit to 0 (no selection)
+    : QMainWindow(parent), ui(new Ui::MainWindow), currentDigit(0), countdownTimer(new QTimer(this)), remainingTime(0)
 {
     ui->setupUi(this);
+
+    // resizing to prevent scrollbars
+    ui->sudokuTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->sudokuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->sudokuTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->sudokuTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->sudokuTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+
+    // Timer label
+    timerLabel = new QLabel(this);
+    timerLabel->setAlignment(Qt::AlignCenter);
+    timerLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    ui->verticalLayout->addWidget(timerLabel); // Add timer label to the UI layout
+
+    connect(countdownTimer, &QTimer::timeout, this, &MainWindow::updateTimer);
+
 
     //set up the table dimensions
     ui->sudokuTable->setRowCount(9);
@@ -184,9 +200,10 @@ void MainWindow::onLoadPuzzle() {
 
 
 void MainWindow::onCheckSolution() {
-    bool isComplete = true;
-    bool valid = true;
+    bool isComplete = true;  // Flag to determine if the puzzle is fully filled
+    bool valid = true;       // Flag to determine if the solution is correct
 
+    // Iterate through the grid to check each cell
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
             QTableWidgetItem* item = ui->sudokuTable->item(i, j);
@@ -195,64 +212,65 @@ void MainWindow::onCheckSolution() {
             int userValue = item->text().isEmpty() ? 0 : item->text().toInt();
             bool isFixed = puzzle.getGrid()[i][j].isFixed;
 
-            // Fixed cells
+            // Fixed cells - retain their styling and skip checks
             if (isFixed) {
-                // Ensure fixed cells retain their color and style
                 QFont font = item->font();
                 font.setBold(true);
                 item->setFont(font);
                 item->setForeground(QBrush(QColor(0, 0, 139)));  // Dark blue text
                 item->setBackground(QBrush(QColor(230, 240, 255)));  // Light grayish blue background
-                continue;  // Skip further checks for fixed cells
+                continue;
             }
 
-            // Editable cells
+            // Check if the cell is incorrect
             if (userValue != 0 && userValue != solvedsudoko[i][j]) {
-                // Incorrect value
-                valid = false;
+                valid = false; // The solution is invalid
                 QFont font = item->font();
                 font.setBold(true);
                 item->setFont(font);
                 item->setForeground(QBrush(QColor(255, 0, 0)));  // Red text
                 item->setBackground(QBrush(QColor(255, 192, 192)));  // Light red background
-            } else if (userValue != 0 && userValue == solvedsudoko[i][j]) {
-                // Correct value
+            } else if (userValue == 0) {
+                // If a cell is empty, mark the puzzle as incomplete
+                isComplete = false;
+            } else {
+                // Correct value - reset styling
                 QFont font = item->font();
                 font.setItalic(true);
                 item->setFont(font);
                 item->setForeground(QBrush(QColor(34, 139, 34)));  // Green text
-                // Ensure proper background for vertical/horizontal highlights
-                if (item->background().color() != QColor(173, 216, 230)) {  // Light blue for selection
-                    item->setBackground(QBrush(QColor(255, 255, 255)));  // Default white
-                }
-            } else {
-                // Empty cell
-                QFont font = item->font();
-                font.setBold(false);
-                font.setItalic(false);
-                item->setFont(font);
-                item->setForeground(QBrush(QColor(0, 0, 0)));  // Black text
-                if (item->background().color() != QColor(173, 216, 230)) {  // Light blue for selection
-                    item->setBackground(QBrush(QColor(255, 255, 255)));  // Default white
-                }
-            }
-
-            if (userValue == 0) {
-                isComplete = false;  // Puzzle is incomplete
+                item->setBackground(QBrush(QColor(255, 255, 255)));  // Default white background
             }
         }
     }
 
-    // Check for completion and validity
-    if (valid && isComplete) {
-        QMessageBox::information(this, "Success", "Congratulations, you solved the Sudoku!");
-    } else if (!isComplete) {
-        if (autoCheckEnabled) return;  // Allow auto-check without showing a message for incomplete puzzles
-        QMessageBox::warning(this, "Incomplete", "The puzzle is not complete.");
+    // Puzzle completeness and validity checks
+    if (isComplete) {
+        if (valid) {
+            // Puzzle is complete and valid
+            countdownTimer->stop(); // Stop the timer
+            QMessageBox::information(this, "Success", "Congratulations, you solved the Sudoku!");
+        } else {
+            // Puzzle is complete but invalid
+            deductLife(); // Deduct a life for an incorrect solution
+            QMessageBox::warning(this, "Incorrect Solution", "Your solution is incorrect. Try again!");
+
+            // If lives reach zero, show Game Over message
+            if (lives == 0) {
+                QMessageBox::critical(this, "Game Over", "You have no lives left. Returning to the main menu.");
+                on_loadButton_clicked(); // Return to the welcome screen
+            }
+        }
     } else {
-        QMessageBox::warning(this, "Invalid", "The solution is invalid.");
+        // Puzzle is incomplete
+        if (!autoCheckEnabled) {
+            QMessageBox::warning(this, "Incomplete Puzzle", "The puzzle is not complete. Please finish it before checking.");
+        }
+        // No action if auto-check is enabled
     }
 }
+
+
 
 
 
@@ -290,4 +308,60 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     emit backToWelcome();
     this->close();
+}
+
+void MainWindow::initializeTimer(int minutes) {
+    remainingTime = minutes * 60; // Convert minutes to seconds
+    timerLabel->setText(QString("Time Left: %1:%2")
+                            .arg(remainingTime / 60, 2, 10, QChar('0'))
+                            .arg(remainingTime % 60, 2, 10, QChar('0')));
+    countdownTimer->start(1000); // Update every second
+}
+
+void MainWindow::updateTimer() {
+    if (remainingTime > 0) {
+        --remainingTime;
+        timerLabel->setText(QString("Time Left: %1:%2")
+                                .arg(remainingTime / 60, 2, 10, QChar('0'))
+                                .arg(remainingTime % 60, 2, 10, QChar('0')));
+    } else {
+        countdownTimer->stop();
+        QMessageBox::warning(this, "Time's Up", "You ran out of time! Game over.");
+        on_loadButton_clicked(); // Return to the welcome screen
+    }
+}
+
+void MainWindow::stopTimer() {
+    countdownTimer->stop();
+}
+
+void MainWindow::initializeLives(int initialLives) {
+    lives = initialLives;
+
+    // Set up the lives label
+    livesLabel = new QLabel(this);
+    livesLabel->setAlignment(Qt::AlignCenter);
+    livesLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: red;");
+    ui->verticalLayout->addWidget(livesLabel); // Add the label to the layout
+    updateLivesLabel();
+}
+
+void MainWindow::updateLivesLabel() {
+    if (lives == -1) {
+        livesLabel->setText("Lives: ∞"); // Infinity symbol for easy level
+    } else {
+        livesLabel->setText(QString("Lives: %1").arg(lives));
+    }
+}
+
+void MainWindow::deductLife() {
+    if (lives != -1) { // Do not deduct lives for easy mode
+        --lives;
+        updateLivesLabel();
+
+        if (lives <= 0) {
+            QMessageBox::critical(this, "Game Over", "You have no lives left. Game Over!");
+            on_loadButton_clicked(); // Return to the welcome screen
+        }
+    }
 }

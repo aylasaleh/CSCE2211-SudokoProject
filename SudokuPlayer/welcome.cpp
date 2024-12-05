@@ -45,80 +45,48 @@ void Welcome::MuteMusic()
     gameMusic->stop();
 }
 
-void Welcome::on_easyB_clicked()
-{
-    //initialize a new Sudoku puzzle
+void Welcome::on_easyB_clicked() {
     sudoku puzzle;
-    //randomize puzzle
     puzzle.create(sudoku::Difficulty::Easy, toupper(randomLetterGenerator()));
-
-    //hide this window
     hide();
 
-    //create new mainwindow
     MainWindow* m = new MainWindow(this);
-
-    //pass the puzzle to the main window
     m->getPuzzle(puzzle);
-
-    //inorder to avoid creating endless windows when starting new games we will maintain 1 welcome window and closing main windows
+    m->initializeTimer(15);      // 15 minutes for Easy
+    m->initializeLives(-1);      // Infinite lives for Easy
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
-
-    //connect signals for playing music
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
-
     m->show();
 }
 
-
-void Welcome::on_medB_clicked()
-{
-    //initialize a new Sudoku puzzle
+void Welcome::on_medB_clicked() {
     sudoku puzzle;
-    //randomize puzzle
     puzzle.create(sudoku::Difficulty::Medium, toupper(randomLetterGenerator()));
-
-    //hide this window
     hide();
 
-    //create new mainwindow
     MainWindow* m = new MainWindow(this);
-
-    //pass the puzzle to the main window
     m->getPuzzle(puzzle);
+    m->initializeTimer(10);      // 10 minutes for Medium
+    m->initializeLives(10);      // 10 lives for Medium
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
-
-    //connect signals for playing music
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
-
     m->show();
 }
 
-
-void Welcome::on_hardB_clicked()
-{
-    //initialize a new Sudoku puzzle
+void Welcome::on_hardB_clicked() {
     sudoku puzzle;
-    //randomize puzzle
-    puzzle.create(sudoku::Difficulty::Hard,toupper(randomLetterGenerator()));
-
-    //hide this window
+    puzzle.create(sudoku::Difficulty::Hard, toupper(randomLetterGenerator()));
     hide();
 
-    //create new mainwindow
     MainWindow* m = new MainWindow(this);
-
-    //pass the puzzle to the main window
     m->getPuzzle(puzzle);
+    m->initializeTimer(7);       // 7 minutes for Hard
+    m->initializeLives(3);       // 3 lives for Hard
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
-
-    //connect signals for playing music
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
-
-
     m->show();
 }
 

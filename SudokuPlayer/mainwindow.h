@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTableWidget>
 #include "sudoku.h"
+#include <QTimer>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,6 +18,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void getPuzzle (sudoku p);
+    void initializeTimer(int minutes);
+    void initializeLives(int initialLives);
+
+
 
 signals:
     void backToWelcome(); // Signal to notify return to the Welcome window
@@ -44,6 +50,17 @@ private:
     int currentDigit;
     bool autoCheckEnabled;
     void closeEvent(QCloseEvent *event) override;
+    QTimer *countdownTimer;
+    QLabel *timerLabel;
+    int remainingTime;
+    void updateTimer();
+    void stopTimer();
+    int lives;
+    QLabel *livesLabel;
+    void updateLivesLabel();
+    void deductLife();
+
+
 };
 
 #endif // MAINWINDOW_H

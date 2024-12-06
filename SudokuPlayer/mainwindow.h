@@ -17,16 +17,15 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void getPuzzle (sudoku p);
+    void getPuzzle(sudoku p);
     void initializeTimer(int minutes);
     void initializeLives(int initialLives);
-
-
+    void setDifficulty(sudoku::Difficulty diff);
 
 signals:
     void backToWelcome(); // Signal to notify return to the Welcome window
-    void MuteMusic(); // Signal to mute music
-    void PlayMusic();
+    void MuteMusic();     // Signal to mute music
+    void PlayMusic();     // Signal to play music
 
 private slots:
     void onLoadPuzzle();
@@ -37,30 +36,34 @@ private slots:
     void on_loadButton_clicked();
     void onAutoCheckToggled(bool checked);
     void on_eraseButton_clicked();
-
     void on_MuteMusic_stateChanged(int state);
 
 private:
     Ui::MainWindow *ui;
     QTableWidget *sudokuTable;
     sudoku puzzle;
-    void updateTable();
     int solvedsudoko[9][9];
-    void showMessage(const QString &message);
+
     int currentDigit;
     bool autoCheckEnabled;
-    void closeEvent(QCloseEvent *event) override;
+
     QTimer *countdownTimer;
     QLabel *timerLabel;
+    QLabel *livesLabel;
+    QLabel *scoreLabel;       // Added for displaying score
+
     int remainingTime;
+    int lives;
+    int incorrectAttempts;
+    sudoku::Difficulty currentDifficulty;
+
+    void closeEvent(QCloseEvent *event) override;
+    void updateTable();
+    void showMessage(const QString &message);
     void updateTimer();
     void stopTimer();
-    int lives;
-    QLabel *livesLabel;
     void updateLivesLabel();
     void deductLife();
-
-
 };
 
 #endif // MAINWINDOW_H

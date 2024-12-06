@@ -54,6 +54,7 @@ void Welcome::on_easyB_clicked() {
     m->getPuzzle(puzzle);
     m->initializeTimer(15);      // 15 minutes for Easy
     m->initializeLives(-1);      // Infinite lives for Easy
+    m->setDifficulty(sudoku::Difficulty::Easy);
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
@@ -69,6 +70,8 @@ void Welcome::on_medB_clicked() {
     m->getPuzzle(puzzle);
     m->initializeTimer(10);      // 10 minutes for Medium
     m->initializeLives(10);      // 10 lives for Medium
+    m->setDifficulty(sudoku::Difficulty::Hard);
+    m->setDifficulty(sudoku::Difficulty::Medium);
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);

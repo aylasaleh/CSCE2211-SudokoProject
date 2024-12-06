@@ -32,9 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
     timerLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
     ui->verticalLayout->addWidget(timerLabel); // Add timer label to the UI layout
 
-    // Lives label (initialized when lives are set)
-    // We'll initialize this in initializeLives()
-
     // Score label
     scoreLabel = new QLabel(this);
     scoreLabel->setAlignment(Qt::AlignCenter);
@@ -44,11 +41,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(countdownTimer, &QTimer::timeout, this, &MainWindow::updateTimer);
 
-    // Set up the table dimensions
+    // set up the table dimensions
     ui->sudokuTable->setRowCount(9);
     ui->sudokuTable->setColumnCount(9);
 
-    // Connect digit buttons to slot
+    // connect digit buttons to slot
     connect(ui->digitButton1, &QPushButton::clicked, this, [this]() { setDigit(1); });
     connect(ui->digitButton2, &QPushButton::clicked, this, [this]() { setDigit(2); });
     connect(ui->digitButton3, &QPushButton::clicked, this, [this]() { setDigit(3); });
@@ -82,12 +79,27 @@ void MainWindow::getPuzzle(sudoku p)
 void MainWindow::setDigit(int digit)
 {
     currentDigit = digit;
+    //qDebug() << "Selected digit:" << currentDigit;
 }
 
 void MainWindow::onAutoCheckToggled(bool checked)
 {
-    autoCheckEnabled = checked;
+    // This to make auto check  only be available in easy mode
+    // In case  the difficulty is not easy we show a message once and revert the checkbox.
+    if (currentDifficulty == sudoku::Difficulty::Easy) {
+        // In Easy mode, we can enable or disable auto-check based on user input
+        autoCheckEnabled = checked;
+    } else {
+        // Temporarily block signals to avoid recursive calls when changing the checkbox state
+        ui->autoCheckCheckBox->blockSignals(true);
+        ui->autoCheckCheckBox->setChecked(false);
+        ui->autoCheckCheckBox->blockSignals(false);
+
+        autoCheckEnabled = false;
+        QMessageBox::information(this, "Not Available", "Auto check is only available in Easy mode.");
+    }
 }
+
 
 void MainWindow::onCellClicked(int row, int col) {
     for (int i = 0; i < 9; ++i) {
@@ -97,7 +109,7 @@ void MainWindow::onCellClicked(int row, int col) {
 
             // Skip fixed cells to avoid overwriting their background color
             if (puzzle.getGrid()[i][j].isFixed) {
-                item->setBackground(QBrush(QColor(230, 240, 255)));  // Keep fixed cells' color
+                item->setBackground(QBrush(QColor(230, 240, 255)));
                 continue;
             }
 
@@ -105,7 +117,6 @@ void MainWindow::onCellClicked(int row, int col) {
             if (i == row || j == col) {
                 item->setBackground(QBrush(QColor(173, 216, 230)));  // Light blue for selection
             } else {
-                // Restore alternating 3x3 grid colors for editable cells
                 item->setBackground(QBrush(((i / 3) + (j / 3)) % 2 == 0 ? QColor(240, 240, 240) : QColor(255, 255, 255)));
             }
         }
@@ -117,12 +128,13 @@ void MainWindow::onCellClicked(int row, int col) {
     // Check if the cell is editable
     if (selectedItem->flags() & Qt::ItemIsEditable) {
         if (currentDigit != 0) {
-            selectedItem->setText(QString::number(currentDigit));  // Set the digit
+            selectedItem->setText(QString::number(currentDigit));  // to set the digit
+            // If autoCheckEnabled is true (which only happens in Easy mode), automatically check solution
             if (autoCheckEnabled) {
-                onCheckSolution();  // Automatically check the solution
+                onCheckSolution();
             }
         } else {
-            selectedItem->setText("");  // Erase the digit
+            selectedItem->setText("");  // to erase the digit
         }
     } else {
         qDebug() << "Cannot edit fixed cells.";
@@ -138,11 +150,11 @@ void MainWindow::onLoadPuzzle() {
     ui->sudokuTable->setColumnCount(9);
     ui->sudokuTable->setStyleSheet("background-color: white;");
 
-    // Get the Sudoku grid
     const auto& grid = puzzle.getGrid();
 
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
+            // Populate table
             int value = grid[i][j].num;
             QTableWidgetItem* item = new QTableWidgetItem(value == 0 ? "" : QString::number(value));
 
@@ -153,7 +165,7 @@ void MainWindow::onLoadPuzzle() {
                 font.setBold(true);  // Bold font
                 item->setFont(font);
                 item->setForeground(QBrush(QColor(0, 0, 139)));  // Dark blue text
-                item->setBackground(QBrush(QColor(230, 240, 255)));   // Light bluish background
+                item->setBackground(QBrush(QColor(230, 240, 255)));   // Light beige background
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable);  // Non-editable
             } else {
                 font.setItalic(false);  // Non-italic for editable cells
@@ -167,117 +179,122 @@ void MainWindow::onLoadPuzzle() {
             ui->sudokuTable->setItem(i, j, item);
 
             // Set alternating 3x3 grid colors
-            if (((i / 3) + (j / 3)) % 2 == 0 && !grid[i][j].isFixed) {
-                item->setBackground(QBrush(QColor(240, 240, 240)));  // Light gray for editable cells
+            if (((i / 3) + (j / 3)) % 2 == 0) {
+                if (!grid[i][j].isFixed) {
+                    item->setBackground(QBrush(QColor(240, 240, 240)));  // Light gray for editable cells
+                }
             }
         }
     }
 
-    ui->sudokuTable->horizontalHeader()->setVisible(false);
-    ui->sudokuTable->verticalHeader()->setVisible(false);
-    ui->sudokuTable->setShowGrid(true);
+    ui->sudokuTable->horizontalHeader()->setVisible(false); // Hide the horizontal header
+    ui->sudokuTable->verticalHeader()->setVisible(false);   // Hide the vertical header
+    ui->sudokuTable->setShowGrid(true);                     // Show grid lines
 
     for (int i = 0; i < 9; ++i) {
-        ui->sudokuTable->setColumnWidth(i, 51);
-        ui->sudokuTable->setRowHeight(i, 51);
+        ui->sudokuTable->setColumnWidth(i, 51); // Set column width to 51 pixels for a uniform look
+        ui->sudokuTable->setRowHeight(i, 51);   // Set row height to 51 pixels for a uniform look
     }
 
-    qDebug() << "Loaded a new Sudoku puzzle.";
+    qDebug() << "Loaded a new Sudoku puzzle."; // Debug message indicating the puzzle has been loaded
 
-    // Solve the Sudoku
+    // Solve the Sudoku (for internal checking)
     puzzle.solve();
 
-    // Copy solved Sudoku
+    // Copy solved Sudoku into an array for checking
     const auto& sudokosolved = puzzle.getGrid();
-    puzzle.print();
-
-    // Copy answers of Sudoku into an array
+    puzzle.print(); // Print the solved puzzle to console for debugging
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
-            solvedsudoko[i][j] = sudokosolved[i][j].num;
+            solvedsudoko[i][j] = sudokosolved[i][j].num; // Store solved values for later checks
         }
     }
 
-    // Reset score label when puzzle is loaded
+    // Reeset score display to 0 at the start of a new puzzle
     scoreLabel->setText("Score: 0");
 }
 
 void MainWindow::onCheckSolution() {
-    bool isComplete = true;  // Flag to determine if the puzzle is fully filled
-    bool valid = true;       // Flag to determine if the solution is correct
+    // this deducts one life before checking the solution in these modes
+    if (currentDifficulty == sudoku::Difficulty::Medium || currentDifficulty == sudoku::Difficulty::Hard) {
+        deductLife();
+        // If no lives remain after deduction then game over:)
+    }
 
-    // Iterate through the grid to check each cell
+    bool isComplete = true; // Flag to check if all cells are filled
+    bool valid = true;      // Flag to check if the filled solution is correct
+
+    // Check each cell for completeness and correctness
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
             QTableWidgetItem* item = ui->sudokuTable->item(i, j);
-            if (!item) continue;
+            if (!item) continue; // Skip if no item found
 
             int userValue = item->text().isEmpty() ? 0 : item->text().toInt();
             bool isFixed = puzzle.getGrid()[i][j].isFixed;
 
-            // Fixed cells
+            // If the cell was originally fixed, restore its style
             if (isFixed) {
                 QFont font = item->font();
                 font.setBold(true);
                 item->setFont(font);
-                item->setForeground(QBrush(QColor(0, 0, 139)));  // Dark blue
-                item->setBackground(QBrush(QColor(230, 240, 255)));
+                item->setForeground(QBrush(QColor(0, 0, 139))); // Dark blue text for fixed cells
+                item->setBackground(QBrush(QColor(230, 240, 255))); // Light background for fixed cells
                 continue;
             }
 
-            // Check correctness
+            // If the cell is filled but incorrect
             if (userValue != 0 && userValue != solvedsudoko[i][j]) {
-                // Incorrect value
-                valid = false;
+                valid = false; // Mark solution as invalid
                 QFont font = item->font();
                 font.setBold(true);
                 item->setFont(font);
-                item->setForeground(QBrush(QColor(255, 0, 0)));      // Red
-                item->setBackground(QBrush(QColor(255, 192, 192)));  // Light red
+                item->setForeground(QBrush(QColor(255, 0, 0)));     // Red text for incorrect cell
+                item->setBackground(QBrush(QColor(255, 192, 192)));   // Light red background for incorrect cell
             } else if (userValue == 0) {
-                // Incomplete if any cell is empty
+                // If the cell is empty, the puzzle is incomplete
                 isComplete = false;
             } else {
-                // Correct value
+                // if the cell matches the solved puzzle style it as correct
                 QFont font = item->font();
                 font.setItalic(true);
                 item->setFont(font);
-                item->setForeground(QBrush(QColor(34, 139, 34)));  // Green
-                item->setBackground(QBrush(QColor(255, 255, 255))); // White
+                item->setForeground(QBrush(QColor(34, 139, 34)));    //Green text for correct cell
+                item->setBackground(QBrush(QColor(255, 255, 255)));  // White background for correct cell
             }
         }
     }
 
     if (isComplete) {
         if (valid) {
-            // Puzzle is complete and correct
-            countdownTimer->stop(); // Stop the timer
+            // Puzzle is complete and valid
+            countdownTimer->stop(); // Stop the timer as the game is completed
 
-            // Calculate final score
             int baseScore;
             int livesBonus = 0;
+            // Determine base score and lives bonus based on difficulty
             switch (currentDifficulty) {
             case sudoku::Difficulty::Easy:
                 baseScore = 500;
-                livesBonus = 0;
+                livesBonus = 0; // In Easy mode no bonus for remaining lives (they are infinity)
                 break;
             case sudoku::Difficulty::Medium:
                 baseScore = 1000;
-                livesBonus = lives * 50;  // +50 per remaining life
+                livesBonus = lives * 50; // Bonus per remaining life in medium
                 break;
             case sudoku::Difficulty::Hard:
                 baseScore = 1500;
-                livesBonus = lives * 100; // +100 per remaining life
+                livesBonus = lives * 100; // Bonus per remaining life in hard
                 break;
             }
 
-            int timeBonus = remainingTime;          // +1 point per second left
-            int penalty = incorrectAttempts * 50;   // -50 per incorrect attempt
+            int timeBonus = remainingTime;   // Bonus for remaining time
+            int penalty = incorrectAttempts * 50;   // penalty for incorrect attempts
             int finalScore = baseScore + timeBonus + livesBonus - penalty;
 
-            // Update the score on the UI
-            scoreLabel->setText(QString("Score: %1").arg(finalScore));
+            scoreLabel->setText(QString("Score: %1").arg(finalScore)); // Update score display
 
+            // Displaying a message when correctly solving with score breakdown
             QMessageBox::information(this, "Success",
                                      QString("Congratulations, you solved the Sudoku!\n\n"
                                              "Score Details:\n"
@@ -293,25 +310,22 @@ void MainWindow::onCheckSolution() {
                                          .arg(finalScore));
 
         } else {
-            // Puzzle is complete but incorrect
-            incorrectAttempts++;
-            deductLife();
+            // Puzzle is complete but invalid
+            incorrectAttempts++; // Increase the count of incorrect attempts
             QMessageBox::warning(this, "Incorrect Solution", "Your solution is incorrect. Try again!");
 
+            // if no lives are remaining then game over :)
             if (lives == 0) {
-                QMessageBox::critical(this, "Game Over",
-                                      "You have no lives left. Returning to the main menu.");
-                on_loadButton_clicked(); // Return to the welcome screen
+                QMessageBox::critical(this, "Game Over", "You have no lives left. Returning to the main menu.");
+                on_loadButton_clicked(); // Return to the main menu
             }
         }
     } else {
-        // Puzzle is incomplete
-        if (!autoCheckEnabled) {
-            QMessageBox::warning(this, "Incomplete Puzzle",
-                                 "The puzzle is not complete. Please finish it before checking.");
-        }
+
+        // removed the old puzzle is not complete to match the new lives and score logic
     }
 }
+
 
 void MainWindow::on_checkButton_clicked()
 {
@@ -320,14 +334,16 @@ void MainWindow::on_checkButton_clicked()
 
 void MainWindow::on_loadButton_clicked()
 {
-    emit backToWelcome(); // emit signal to return to the welcome screen
-    this->close();        // close mainwindow
+    emit backToWelcome();
+    this->close();
 }
 
 void MainWindow::on_eraseButton_clicked()
 {
     currentDigit = 0;
+    // QTC_TEMP
 }
+
 
 void MainWindow::on_MuteMusic_stateChanged(int state)
 {
@@ -343,15 +359,15 @@ void MainWindow::on_MuteMusic_stateChanged(int state)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     emit backToWelcome();
-    QMainWindow::closeEvent(event);
+    this->close();
 }
 
 void MainWindow::initializeTimer(int minutes) {
-    remainingTime = minutes * 60; // Convert minutes to seconds
+    remainingTime = minutes * 60;
     timerLabel->setText(QString("Time Left: %1:%2")
                             .arg(remainingTime / 60, 2, 10, QChar('0'))
                             .arg(remainingTime % 60, 2, 10, QChar('0')));
-    countdownTimer->start(1000); // Update every second
+    countdownTimer->start(1000);
 }
 
 void MainWindow::updateTimer() {
@@ -363,7 +379,7 @@ void MainWindow::updateTimer() {
     } else {
         countdownTimer->stop();
         QMessageBox::warning(this, "Time's Up", "You ran out of time! Game over.");
-        on_loadButton_clicked(); // Return to the welcome screen
+        on_loadButton_clicked();
     }
 }
 
@@ -374,30 +390,30 @@ void MainWindow::stopTimer() {
 void MainWindow::initializeLives(int initialLives) {
     lives = initialLives;
 
-    // Set up the lives label
+    // set up the lives label
     livesLabel = new QLabel(this);
     livesLabel->setAlignment(Qt::AlignCenter);
     livesLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: red;");
-    ui->verticalLayout->addWidget(livesLabel); // Add the label to the layout
+    ui->verticalLayout->addWidget(livesLabel);
     updateLivesLabel();
 }
 
 void MainWindow::updateLivesLabel() {
     if (lives == -1) {
-        livesLabel->setText("Lives: ∞"); // Infinity symbol for easy level
+        livesLabel->setText("Lives: ∞");
     } else {
         livesLabel->setText(QString("Lives: %1").arg(lives));
     }
 }
 
 void MainWindow::deductLife() {
-    if (lives != -1) { // Do not deduct lives for easy mode
+    if (lives != -1) {
         --lives;
         updateLivesLabel();
 
         if (lives <= 0) {
             QMessageBox::critical(this, "Game Over", "You have no lives left. Game Over!");
-            on_loadButton_clicked(); // Return to the welcome screen
+            on_loadButton_clicked();
         }
     }
 }

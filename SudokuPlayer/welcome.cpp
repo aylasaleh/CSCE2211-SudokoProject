@@ -70,8 +70,7 @@ void Welcome::on_medB_clicked() {
     m->getPuzzle(puzzle);
     m->initializeTimer(10);      // 10 minutes for Medium
     m->initializeLives(10);      // 10 lives for Medium
-    m->setDifficulty(sudoku::Difficulty::Hard);
-    m->setDifficulty(sudoku::Difficulty::Medium);
+    m->setDifficulty(sudoku::Difficulty::Medium); // Set difficulty to Medium only
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
@@ -87,6 +86,7 @@ void Welcome::on_hardB_clicked() {
     m->getPuzzle(puzzle);
     m->initializeTimer(7);       // 7 minutes for Hard
     m->initializeLives(3);       // 3 lives for Hard
+    m->setDifficulty(sudoku::Difficulty::Hard);   // Set difficulty to Hard
     connect(m, &MainWindow::backToWelcome, this, &Welcome::show);
     connect(m, &MainWindow::PlayMusic, this, &Welcome::PlayMusic);
     connect(m, &MainWindow::MuteMusic, this, &Welcome::MuteMusic);
@@ -103,4 +103,3 @@ void Welcome::on_MuteMusic_stateChanged(int state)
         PlayMusic();
     }
 }
-

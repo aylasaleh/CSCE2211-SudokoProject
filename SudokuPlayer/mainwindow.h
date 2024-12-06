@@ -50,7 +50,7 @@ private:
     QTimer *countdownTimer;
     QLabel *timerLabel;
     QLabel *livesLabel;
-    QLabel *scoreLabel;       // Added for displaying score
+    QLabel *scoreLabel;
 
     int remainingTime;
     int lives;

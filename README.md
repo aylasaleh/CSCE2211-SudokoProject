@@ -27,7 +27,7 @@ This project showcases a classic Sudoku game built using **C++** with a graphica
 
 2. **Clone the Repository**:  
    ```bash  
-   git clone [repository-link]  
+   git clone https://github.com/aylasaleh/CSCE2211-SudokoProject.git
    cd CSCE2211-SudokuProject
 
 3. **Open the Project**:
